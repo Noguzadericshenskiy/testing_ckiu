@@ -54,17 +54,12 @@ def crc_ccitt_16_kermit_hex(data_h: bytes):
 
     :return : int
     """
-
     data_str = (int(data_h[i:i + 2], 16) for i in range(0, len(data_h), 2))
     crc = 0x0000
     for i in data_str:
         crc = (crc >> 8) ^ crc_ccitt_table[(crc ^ i) & 0xff]
     return crc
 
-def revers_bytes(bytes: int):
-    lo = bytes % 256
-    hi = bytes // 256
-    return hex(lo * 256 + hi)
 
 def crc_ccitt_16_kermit_b(data_h: bytes):
     crc = 0x0000
@@ -72,9 +67,21 @@ def crc_ccitt_16_kermit_b(data_h: bytes):
         crc = (crc >> 8) ^ crc_ccitt_table[(crc ^ i) & 0xff]
     return crc
 
-# send_0 = b"b649086a8b09810000000000000000"
-# send_1 = b"\xb6\x49\x08\x6a\x8b\x09\x81\x00\x00\x00\x00\x00\x00\x00\x00"
-#
-# print(hex(crc_ccitt_16_kermit_hex(send_0)))
-# print(hex(crc_ccitt_16_kermit_b(send_1)))
 
+def revers_bytes(bytes: int):
+    lo = bytes % 256
+    hi = bytes // 256
+    return hex(lo * 256 + hi)
+
+
+def add_crc(data, crc):
+    data.append(crc % 256)
+    data.append(crc // 256)
+    return data
+
+
+def check_crc(crc_in, data):
+    crc = crc_ccitt_16_kermit_b(data)
+
+    if crc == crc_in:
+        return True
