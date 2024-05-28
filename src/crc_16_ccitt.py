@@ -82,6 +82,5 @@ def add_crc(data, crc):
 
 def check_crc(crc_in, data):
     crc = crc_ccitt_16_kermit_b(data)
-
     if crc == crc_in:
         return True

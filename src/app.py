@@ -3,10 +3,15 @@ import time
 from crc_16_ccitt import crc_ccitt_16_kermit_b, revers_bytes, add_crc
 
 
-PORT = "COM9"
+PORT = "COM4"
 # STOPBIT =
 # PARITY =
 BITRATE = 19200
+
+
+class NCED02State:
+    ...
+
 
 
 
@@ -43,7 +48,7 @@ class ResponseReadVariable84:
 
 def send_data():
     send_2 = b"\xb6\x49\x08\x6a\x8b\x09\x81\x00\x00\x00\x00\x00\x00\x00\x00\x8a\xff"
-    send_3 = b"\xb6\x49\x08\x6a\x8b\x09\x81\x00\x00\x00\x00\x00\x00\x00\x00"
+    send_3 = b"\xb6\x49\x08\x6a\x8b\x09\x81\x1a\x2a\x00\x00\x00\x00\x00\x00"
     send_4 = b"\xb6\x49\x08\x6a\x8b\x01\x81"
 
     with serial.Serial(port=PORT, baudrate=BITRATE, timeout=1) as ser:
