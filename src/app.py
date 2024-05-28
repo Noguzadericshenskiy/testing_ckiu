@@ -1,6 +1,13 @@
+import sys
 import serial
 import time
+import PySide6
+
+from PySide6.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QTableWidgetItem
+from src.main import Ui_MainWindow
+
 from crc_16_ccitt import crc_ccitt_16_kermit_b, revers_bytes, add_crc
+
 
 
 PORT = "COM4"
@@ -9,10 +16,25 @@ PORT = "COM4"
 BITRATE = 19200
 
 
-class NCED02State:
-    ...
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Тестер СКИУ")
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
 
+    def set_ports(self):
+        ...
 
+    def set_bspeed(self):
+        ...
+
+    def connect_(self):
+        port = self.ui.port_comboBox.currentText()
+        speed = self.ui.speed_comboBox.currentText()
+        sn = int(self.ui.sn_lineEdit.text())
+        conn = serial.Serial(port=port, baudrate=speed, timeout=1)
+        conn.open()
 
 
 class RequestReadVariable84:
@@ -75,4 +97,7 @@ def byte_con():
 
 
 if __name__ == "__main__":
-    send_data()
+    app = QApplication([])
+    widget = MainWindow()
+    widget.show()
+    sys.exit(app.exec())
