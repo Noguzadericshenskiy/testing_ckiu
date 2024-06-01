@@ -48,26 +48,27 @@ def skan_rs_485():
     with serial.Serial(port=PORT, baudrate=BITRATE, timeout=1) as ser:
         # ser.open()
         while True:
-            if ser.read().hex() == b"\xb6".hex() and ser.read().hex() == b"\x49".hex():
-                hid = ser.read(3).hex()
-                lenght = int(ser.read().hex())
-                data = ser.read(lenght).hex()
-                cmd = data[0:2]
-                crc = ser.read(2).hex()
-                hid_obj = hid_converter(hid)
-                # if cmd != "81":
-                print(f"запрос-{hid} type_dev-{hid_obj.type} sn-{hid_obj.sn} cmd-{cmd} {lenght} data-{data} crc-{crc}")
+            try:
+                if ser.read().hex() == b"\xb6".hex() and ser.read().hex() == b"\x49".hex():
+                    hid = ser.read(3).hex()
+                    lenght = int(ser.read().hex())
+                    data = ser.read(lenght).hex()
+                    cmd = data[0:2]
+                    crc = ser.read(2).hex()
+                    hid_obj = hid_converter(hid)
+                    # if cmd != "81":
+                    print(f"запрос-{hid} type_dev-{hid_obj.type} sn-{hid_obj.sn} cmd-{cmd} {lenght} data-{data} crc-{crc}")
 
-            if ser.read().hex() == b"\xb9".hex() and ser.read().hex() == b"\x46".hex():
-                hid = ser.read(3).hex()
-                lenght = int(ser.read().hex())
-                res = ser.read(lenght).hex()
-                result = result_cmd_81(res)
-                crc = ser.read(2).hex()
-                # if result.cmd != 1:
-                print(f"Ответ  hid-{hid}  lenght-{lenght}  result-{res} {result.cmd}|{result.state}|{result.code}  crc-{crc}")
-
-
+                if ser.read().hex() == b"\xb9".hex() and ser.read().hex() == b"\x46".hex():
+                    hid = ser.read(3).hex()
+                    lenght = int(ser.read().hex())
+                    res = ser.read(lenght).hex()
+                    result = result_cmd_81(res)
+                    crc = ser.read(2).hex()
+                    # if result.cmd != 1:
+                    print(f"Ответ  hid-{hid}  lenght-{lenght}  result-{res} {result.cmd}|{result.state}|{result.code}  crc-{crc}")
+            except:
+                IndexError("Неверный байт")
 def byte_con():
     msg = bytearray(b"\xb6\x49")
     msg.append(11)

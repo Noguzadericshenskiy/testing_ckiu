@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1218</width>
-    <height>810</height>
+    <width>1220</width>
+    <height>815</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -388,8 +388,8 @@
         <rect>
          <x>10</x>
          <y>160</y>
-         <width>47</width>
-         <height>13</height>
+         <width>41</width>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
@@ -402,11 +402,31 @@
          <x>100</x>
          <y>160</y>
          <width>47</width>
-         <height>13</height>
+         <height>16</height>
         </rect>
        </property>
        <property name="text">
         <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in1_t_pos_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>20</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in1_t_neg_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>60</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
        </property>
       </widget>
      </widget>
@@ -500,6 +520,26 @@
         <string>U</string>
        </property>
       </widget>
+      <widget class="QLineEdit" name="in2_t_pos_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>20</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in2_t_neg_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>60</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
@@ -591,6 +631,26 @@
         <string>U</string>
        </property>
       </widget>
+      <widget class="QLineEdit" name="in3_t_pos_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>20</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in3_t_neg_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>60</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_4">
       <property name="geometry">
@@ -680,6 +740,26 @@
        </property>
        <property name="text">
         <string>U</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in4_t_pos_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>20</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="in4_t_neg_imp_lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>60</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
        </property>
       </widget>
      </widget>
@@ -830,8 +910,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1218</width>
-     <height>21</height>
+     <width>1220</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

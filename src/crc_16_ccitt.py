@@ -61,7 +61,7 @@ def crc_ccitt_16_kermit_hex(data_h: bytes):
     return crc
 
 
-def crc_ccitt_16_kermit_b(data_h: bytes):
+def crc_ccitt_16_kermit_b(data_h: bytes) -> int:
     crc = 0x0000
     for i in data_h:
         crc = (crc >> 8) ^ crc_ccitt_table[(crc ^ i) & 0xff]
