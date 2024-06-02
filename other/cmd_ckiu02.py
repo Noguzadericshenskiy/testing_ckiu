@@ -8,4 +8,4 @@ query_scan = b"B6 49 1B sn_lb sn_hb 09 81 t_pos_impuls t_neg_impuls <...2> <...2
 # Ответ 0xB9, 0x46, 0x1B, <адрес мл. байт>, <адрес ст. байт>, 0x04, 0x01, 0x00(или 0x80 после старта, <АЦПuвх>, <Cостояния выходов>, <CRC16 мл. байт>, <CRC16 ст. байт>
 response_scan = b"B9 46 1B sn_lb sn_hb 04 01 00 | 80 (start) acp_u_in state_out crc_lb crc_hb"
 
-
+.

@@ -3,8 +3,10 @@ import serial
 import time
 import PySide6
 
-
+from PySide6 import QtGui
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QTableWidgetItem
+
 from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, revers_bytes, add_crc
@@ -17,25 +19,32 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Тестер СКИУ")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setup_param_default()
         self.ui.connect_btn.clicked.connect(self._connect_01)
         self.ui.close_btn.clicked.connect(self._close)
         self.ui.connect_ckiu_2_btn.clicked.connect(self._connect_02)
         self.ui.close_ckiu_2_btn.clicked.connect(self._close)
+        self.ui.update_btn.clicked.connect(self._update_port)
+
+
+
         self.ports = []
-        self.messages = []
+        self.messages = {}
         self.sn = None
-        self.ports_out()
+        self._ports_out()
         self.speeds_out()
         self.conn = None
         self.server = None
+        self.params = ["0"]
 
-    def setup_param_default(self):
+        self._setup_param_default()
+
+    def _setup_param_default(self):
         # ===================================
         self.ui.sn_lineEdit.setText("35690")
         self.ui.sn_lineEdit.setText("10411")
         # ===================================
-
+        self.ui.version_acp_radioButton.setChecked(True)
+        self.ui.u_in_acp_lbl.setText(self.params[0])
         self.ui.in1_t_pos_imp_lineEdit.setText("0")
         self.ui.in1_t_neg_imp_lineEdit.setText("0")
         self.ui.in2_t_pos_imp_lineEdit.setText("0")
@@ -45,7 +54,11 @@ class MainWindow(QMainWindow):
         self.ui.in4_t_pos_imp_lineEdit.setText("0")
         self.ui.in4_t_neg_imp_lineEdit.setText("0")
 
-    def ports_out(self):
+    def _update_port(self):
+        self.ui.port_comboBox.clear()
+        self._ports_out()
+
+    def _ports_out(self):
         self.ports = get_com_ports()
         for port in self.ports:
             self.ui.port_comboBox.addItem(port[1])
@@ -80,7 +93,8 @@ class MainWindow(QMainWindow):
     def _close(self):
         if self.conn != None:
             self.conn.close()
-            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01;}")
+            self.server = None
+            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
     def _connect_02(self):
         """Запуск сканера для СКИУ-02"""
@@ -93,19 +107,22 @@ class MainWindow(QMainWindow):
         speed = self.ui.speed_comboBox.currentText()
         self.conn = serial.Serial(port=port_name, baudrate=speed, timeout=1)
         if self.conn.is_open:
-            self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207;}")
-            self.request_version_ckiu_02()
-            self.request_scan_ckiu_02()
+            self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
+            self._request_version_ckiu_02()
+            self._request_scan_ckiu_02()
             if self.ui.version_acp_radioButton.isChecked():
-                self.request_acp_ckiu_02_old()
+                self._request_acp_ckiu_02_old()
             if self.ui.version_ibp_radioButton.isChecked():
-                self.request_acp_ckiu_02_ibp()
-            self.server = Server485(self. conn, port_name, speed, self.messages)
-            self.server.start()
+                self._request_acp_ckiu_02_ibp()
+            if self.server == None:
+                self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
+                self.server.sig.connect(self.update_version)
+                self.server.sig1.connect(self.update_state)
+                self.server.start()
         else:
-            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01;}")
+            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
-    def request_version_ckiu_02(self):
+    def _request_version_ckiu_02(self):
         msg = bytearray(b"\xb6\x49\x1b")
         # self.sn = int(self.ui.sn_lineEdit.text())
         msg.append(self.sn % 256)
@@ -113,18 +130,19 @@ class MainWindow(QMainWindow):
         msg.append(1)       # 01
         msg.append(128)     # 80
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg)) # +crc
-        self.messages.append(msg)
+        self.messages[80] = msg
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def request_scan_ckiu_02(self):
-        in1_t_pos_imp_lineEdit = int(self.ui.in1_t_pos_imp_lineEdit.text()) * 100
-        in1_t_neg_imp_lineEdit = int(self.ui.in1_t_neg_imp_lineEdit.text()) * 100
-        in2_t_pos_imp_lineEdit = int(self.ui.in2_t_pos_imp_lineEdit.text()) * 100
-        in2_t_neg_imp_lineEdit = int(self.ui.in2_t_neg_imp_lineEdit.text()) * 100
-        in3_t_pos_imp_lineEdit = int(self.ui.in3_t_pos_imp_lineEdit.text()) * 100
-        in3_t_neg_imp_lineEdit = int(self.ui.in3_t_neg_imp_lineEdit.text()) * 100
-        in4_t_pos_imp_lineEdit = int(self.ui.in4_t_pos_imp_lineEdit.text()) * 100
-        in4_t_neg_imp_lineEdit = int(self.ui.in4_t_neg_imp_lineEdit.text()) * 100
+    def _request_scan_ckiu_02(self):
+        in1_t_pos_imp_lineEdit = int(self.ui.in1_t_pos_imp_lineEdit.text())
+        in1_t_neg_imp_lineEdit = int(self.ui.in1_t_neg_imp_lineEdit.text())
+        in2_t_pos_imp_lineEdit = int(self.ui.in2_t_pos_imp_lineEdit.text())
+        in2_t_neg_imp_lineEdit = int(self.ui.in2_t_neg_imp_lineEdit.text())
+        in3_t_pos_imp_lineEdit = int(self.ui.in3_t_pos_imp_lineEdit.text())
+        in3_t_neg_imp_lineEdit = int(self.ui.in3_t_neg_imp_lineEdit.text())
+        in4_t_pos_imp_lineEdit = int(self.ui.in4_t_pos_imp_lineEdit.text())
+        in4_t_neg_imp_lineEdit = int(self.ui.in4_t_neg_imp_lineEdit.text())
         msg = bytearray(b"\xb6\x49\x1b")
         # self.sn = int(self.ui.sn_lineEdit.text())
         msg.append(self.sn % 256)
@@ -140,40 +158,44 @@ class MainWindow(QMainWindow):
         msg.append(in4_t_pos_imp_lineEdit)    #
         msg.append(in4_t_neg_imp_lineEdit)    #
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
+        self.messages[81] = msg
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def request_acp_ckiu_02_old(self):
+    def _request_acp_ckiu_02_old(self):
         msg = bytearray(b"\xb6\x49\x1b")
         msg.append(self.sn % 256)
         msg.append(self.sn // 256)
         msg.append(1)  # 01
         msg.append(130)  # 82
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
+        self.messages[82] = msg
+        # self.messages[] = msg
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def request_acp_ckiu_02_ibp(self):
+    def _request_acp_ckiu_02_ibp(self):
         msg = bytearray(b"\xb6\x49\x1b")
         msg.append(self.sn % 256)
         msg.append(self.sn // 256)
         msg.append(1)  # 01
         msg.append(131)  # 83
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
+        self.messages[83] = msg
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def request_rebut_ckiu_02(self):
+    def _request_rebut_ckiu_02(self):
         msg = bytearray(b"\xb6\x49\x1b")
         msg.append(self.sn % 256)
         msg.append(self.sn // 256)
         msg.append(1)  # 01
         msg.append(209)  # D1
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def request_str_debug(self):
+    def _request_str_debug(self):
         msg = bytearray(b"\xb6\x49\x1b")
         msg.append(self.sn % 256)
         msg.append(self.sn // 256)
@@ -181,15 +203,71 @@ class MainWindow(QMainWindow):
         msg.append(163)  # A3
         num_str = 0
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
+        # self.messages.append(msg)
         # print(msg.hex())
 
-    def handler_responses_ckiu_02(self):
-        ...
+    @Slot(tuple)
+    def update_version(self, new_item):
+        self.ui.version_ckiu2_lbl.setText(new_item[0])
+        self.ui.sub_version_ckiu2_lbl.setText(new_item[1])
 
-    def run_process(self):
-        ...
-
+    @Slot(tuple)
+    def update_state(self, new_item):
+        self.ui.u_in_acp_lbl.setText(new_item[0])
+        self.ui.u_in_lcd.display(new_item[2])
+        self.ui.u_in_lcd.setStyleSheet("QLCDNumber {background-color: #2e2e2e; color: #07f73b;}")
+        st_in_1 = int(new_item[1][0])
+        st_in_2 = int(new_item[1][1])
+        st_in_3 = int(new_item[1][2])
+        st_in_4 = int(new_item[1][3])
+        if st_in_1 == 0:
+            self.ui.state_in_1_lbl.setText("Норма")
+            self.ui.state_in_1_lbl.setStyleSheet(
+                "QLabel {background-color : #07f73b; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_1 == 1:
+            self.ui.state_in_1_lbl.setText("КЗ")
+            self.ui.state_in_1_lbl.setStyleSheet(
+                "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_1 == 11:
+            self.ui.state_in_1_lbl.setText("Обрыв")
+            self.ui.state_in_1_lbl.setStyleSheet(
+                "QLabel {background-color : #f77b07; border:4px solid rgb(109, 109, 109)}")
+        if st_in_2 == 0:
+            self.ui.state_in_2_lbl.setText("Норма")
+            self.ui.state_in_2_lbl.setStyleSheet(
+                "QLabel {background-color : #07f73b; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_2 == 1:
+            self.ui.state_in_2_lbl.setText("КЗ")
+            self.ui.state_in_2_lbl.setStyleSheet(
+                "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_2 == 11:
+            self.ui.state_in_2_lbl.setText("Обрыв")
+            self.ui.state_in_2_lbl.setStyleSheet(
+                "QLabel {background-color : #f77b07; border:4px solid rgb(109, 109, 109)}")
+        if st_in_3 == 0:
+            self.ui.state_in_3_lbl.setText("Норма")
+            self.ui.state_in_3_lbl.setStyleSheet(
+                "QLabel {background-color : #07f73b; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_3 == 1:
+            self.ui.state_in_3_lbl.setText("КЗ")
+            self.ui.state_in_3_lbl.setStyleSheet(
+                "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_3 == 11:
+            self.ui.state_in_3_lbl.setText("Обрыв")
+            self.ui.state_in_3_lbl.setStyleSheet(
+                "QLabel {background-color : #f77b07; border:4px solid rgb(109, 109, 109)}")
+        if st_in_4 == 0:
+            self.ui.state_in_4_lbl.setText("Норма")
+            self.ui.state_in_4_lbl.setStyleSheet(
+                "QLabel {background-color : #07f73b; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_4 == 1:
+            self.ui.state_in_4_lbl.setText("КЗ")
+            self.ui.state_in_4_lbl.setStyleSheet(
+                "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_4 == 11:
+            self.ui.state_in_4_lbl.setText("Обрыв")
+            self.ui.state_in_4_lbl.setStyleSheet(
+                "QLabel {background-color : #f77b07; border:4px solid rgb(109, 109, 109)}")
 
 
 if __name__ == "__main__":
