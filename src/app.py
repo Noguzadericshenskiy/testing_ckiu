@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QTable
 from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, revers_bytes, add_crc
-from src.server import Server485
+from src.ckiu_02 import Server485
 
 
 class MainWindow(QMainWindow):
@@ -24,8 +24,6 @@ class MainWindow(QMainWindow):
         self.ui.connect_ckiu_2_btn.clicked.connect(self._connect_02)
         self.ui.close_ckiu_2_btn.clicked.connect(self._close)
         self.ui.update_btn.clicked.connect(self._update_port)
-
-
 
         self.ports = []
         self.messages = {}
@@ -44,7 +42,6 @@ class MainWindow(QMainWindow):
         self.ui.sn_lineEdit.setText("10411")
         # ===================================
         self.ui.version_acp_radioButton.setChecked(True)
-        self.ui.u_in_acp_lbl.setText(self.params[0])
         self.ui.in1_t_pos_imp_lineEdit.setText("0")
         self.ui.in1_t_neg_imp_lineEdit.setText("0")
         self.ui.in2_t_pos_imp_lineEdit.setText("0")
@@ -119,6 +116,7 @@ class MainWindow(QMainWindow):
                 self.server.sig.connect(self.update_version)
                 self.server.sig1.connect(self.update_state)
                 self.server.start()
+
         else:
             self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
@@ -213,8 +211,7 @@ class MainWindow(QMainWindow):
 
     @Slot(tuple)
     def update_state(self, new_item):
-        self.ui.u_in_acp_lbl.setText(new_item[0])
-        self.ui.u_in_lcd.display(new_item[2])
+        self.ui.u_in_lcd.display(new_item[0])
         self.ui.u_in_lcd.setStyleSheet("QLCDNumber {background-color: #2e2e2e; color: #07f73b;}")
         st_in_1 = int(new_item[1][0])
         st_in_2 = int(new_item[1][1])
@@ -228,6 +225,10 @@ class MainWindow(QMainWindow):
             self.ui.state_in_1_lbl.setText("КЗ")
             self.ui.state_in_1_lbl.setStyleSheet(
                 "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_1 == 10:
+            self.ui.state_in_1_lbl.setText("Включен")
+            self.ui.state_in_1_lbl.setStyleSheet(
+                "QLabel {background-color : #026600; border:4px solid rgb(109, 109, 109)}")
         elif st_in_1 == 11:
             self.ui.state_in_1_lbl.setText("Обрыв")
             self.ui.state_in_1_lbl.setStyleSheet(
@@ -240,6 +241,10 @@ class MainWindow(QMainWindow):
             self.ui.state_in_2_lbl.setText("КЗ")
             self.ui.state_in_2_lbl.setStyleSheet(
                 "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_2 == 10:
+            self.ui.state_in_2_lbl.setText("Включен")
+            self.ui.state_in_2_lbl.setStyleSheet(
+                "QLabel {background-color : #026600; border:4px solid rgb(109, 109, 109)}")
         elif st_in_2 == 11:
             self.ui.state_in_2_lbl.setText("Обрыв")
             self.ui.state_in_2_lbl.setStyleSheet(
@@ -252,6 +257,10 @@ class MainWindow(QMainWindow):
             self.ui.state_in_3_lbl.setText("КЗ")
             self.ui.state_in_3_lbl.setStyleSheet(
                 "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_3 == 10:
+            self.ui.state_in_3_lbl.setText("Включен")
+            self.ui.state_in_3_lbl.setStyleSheet(
+                "QLabel {background-color : #026600; border:4px solid rgb(109, 109, 109)}")
         elif st_in_3 == 11:
             self.ui.state_in_3_lbl.setText("Обрыв")
             self.ui.state_in_3_lbl.setStyleSheet(
@@ -264,6 +273,10 @@ class MainWindow(QMainWindow):
             self.ui.state_in_4_lbl.setText("КЗ")
             self.ui.state_in_4_lbl.setStyleSheet(
                 "QLabel {background-color : #f70717; border:4px solid rgb(109, 109, 109)}")
+        elif st_in_4 == 10:
+            self.ui.state_in_4_lbl.setText("Обрыв")
+            self.ui.state_in_4_lbl.setStyleSheet(
+                "QLabel {background-color : #026600; border:4px solid rgb(109, 109, 109)}")
         elif st_in_4 == 11:
             self.ui.state_in_4_lbl.setText("Обрыв")
             self.ui.state_in_4_lbl.setStyleSheet(

@@ -10,7 +10,7 @@ from crc_16_ccitt import crc_ccitt_16_kermit_b, revers_bytes, add_crc
 from utilites import hid_converter, result_cmd_81
 
 
-PORT = "COM6"
+PORT = "COM20"
 # STOPBIT =
 # PARITY =
 BITRATE = 19200
@@ -50,23 +50,26 @@ def skan_rs_485():
         while True:
             try:
                 if ser.read().hex() == b"\xb6".hex() and ser.read().hex() == b"\x49".hex():
-                    hid = ser.read(3).hex()
-                    lenght = int(ser.read().hex())
-                    data = ser.read(lenght).hex()
-                    cmd = data[0:2]
+                    msg_in = bytearray(b"\xb6\x49")
+                    hid = ser.read(3)
+                    length = int(ser.read().hex())
+                    data = ser.read(int.from_bytes(length, "little")).hex()
+
                     crc = ser.read(2).hex()
-                    hid_obj = hid_converter(hid)
-                    # if cmd != "81":
-                    print(f"запрос-{hid} type_dev-{hid_obj.type} sn-{hid_obj.sn} cmd-{cmd} {lenght} data-{data} crc-{crc}")
+                    msg_in.append(int.from_bytes(hid, "little"))
+                    msg_in.append(int.from_bytes(length, "little"))
+                    msg_in.append(int.from_bytes(data, "little"))
+                    msg_in.append(int.from_bytes(crc, "little"))
+                    print(msg_in.hex())
 
                 if ser.read().hex() == b"\xb9".hex() and ser.read().hex() == b"\x46".hex():
                     hid = ser.read(3).hex()
-                    lenght = int(ser.read().hex())
+                    length = int(ser.read().hex())
                     res = ser.read(lenght).hex()
                     result = result_cmd_81(res)
                     crc = ser.read(2).hex()
                     # if result.cmd != 1:
-                    print(f"Ответ  hid-{hid}  lenght-{lenght}  result-{res} {result.cmd}|{result.state}|{result.code}  crc-{crc}")
+                    print(f"Ответ  hid-{hid}  lenght-{length}  result-{res} {result.cmd}|{result.state}|{result.code}  crc-{crc}")
             except:
                 IndexError("Неверный байт")
 def byte_con():

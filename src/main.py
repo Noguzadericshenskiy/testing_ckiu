@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_v3.ui'
+## Form generated from reading UI file 'main_v4.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.1
 ##
@@ -25,6 +25,8 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1190, 615)
+        MainWindow.setStyleSheet(u"background-color: rgb(85, 170, 255);\n"
+"color: rgb(0, 0, 0);")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.tabWidget = QTabWidget(self.centralwidget)
@@ -107,9 +109,6 @@ class Ui_MainWindow(object):
         self.label_19 = QLabel(self.skiu2)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(10, 60, 61, 21))
-        self.u_in_acp_lbl = QLabel(self.skiu2)
-        self.u_in_acp_lbl.setObjectName(u"u_in_acp_lbl")
-        self.u_in_acp_lbl.setGeometry(QRect(10, 100, 71, 16))
         self.horizontalLayoutWidget = QWidget(self.skiu2)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
         self.horizontalLayoutWidget.setGeometry(QRect(20, 180, 1111, 291))
@@ -134,15 +133,12 @@ class Ui_MainWindow(object):
         self.label_20 = QLabel(self.groupBox)
         self.label_20.setObjectName(u"label_20")
         self.label_20.setGeometry(QRect(10, 110, 101, 21))
-        self.label_24 = QLabel(self.groupBox)
-        self.label_24.setObjectName(u"label_24")
-        self.label_24.setGeometry(QRect(130, 112, 61, 21))
         self.label_29 = QLabel(self.groupBox)
         self.label_29.setObjectName(u"label_29")
-        self.label_29.setGeometry(QRect(10, 160, 41, 16))
-        self.u_in_1_lbl = QLabel(self.groupBox)
-        self.u_in_1_lbl.setObjectName(u"u_in_1_lbl")
-        self.u_in_1_lbl.setGeometry(QRect(10, 190, 47, 16))
+        self.label_29.setGeometry(QRect(20, 140, 51, 31))
+        font = QFont()
+        font.setPointSize(16)
+        self.label_29.setFont(font)
         self.in1_t_pos_imp_lineEdit = QLineEdit(self.groupBox)
         self.in1_t_pos_imp_lineEdit.setObjectName(u"in1_t_pos_imp_lineEdit")
         self.in1_t_pos_imp_lineEdit.setGeometry(QRect(180, 20, 61, 20))
@@ -151,7 +147,7 @@ class Ui_MainWindow(object):
         self.in1_t_neg_imp_lineEdit.setGeometry(QRect(180, 60, 61, 20))
         self.state_in_1_lbl = QLabel(self.groupBox)
         self.state_in_1_lbl.setObjectName(u"state_in_1_lbl")
-        self.state_in_1_lbl.setGeometry(QRect(60, 220, 91, 21))
+        self.state_in_1_lbl.setGeometry(QRect(160, 110, 91, 21))
         self.state_in_1_lbl.setStyleSheet(u"QLabel {\n"
 "	border:4px solid rgb(109, 109, 109);\n"
 "	background-color: rgb(255, 170, 0);\n"
@@ -159,7 +155,10 @@ class Ui_MainWindow(object):
 "}")
         self.u_in_1_lcd = QLCDNumber(self.groupBox)
         self.u_in_1_lcd.setObjectName(u"u_in_1_lcd")
-        self.u_in_1_lcd.setGeometry(QRect(70, 160, 81, 23))
+        self.u_in_1_lcd.setGeometry(QRect(70, 140, 91, 31))
+        self.u_in_1_lcd.setStyleSheet(u"QLCDNumber {\n"
+"	color: rgb(0, 255, 0);\n"
+"}")
 
         self.horizontalLayout.addWidget(self.groupBox)
 
@@ -177,15 +176,10 @@ class Ui_MainWindow(object):
         self.label_21 = QLabel(self.groupBox_2)
         self.label_21.setObjectName(u"label_21")
         self.label_21.setGeometry(QRect(10, 110, 101, 21))
-        self.label_25 = QLabel(self.groupBox_2)
-        self.label_25.setObjectName(u"label_25")
-        self.label_25.setGeometry(QRect(140, 110, 61, 21))
         self.label_31 = QLabel(self.groupBox_2)
         self.label_31.setObjectName(u"label_31")
-        self.label_31.setGeometry(QRect(20, 170, 47, 13))
-        self.u_in_2_lbl = QLabel(self.groupBox_2)
-        self.u_in_2_lbl.setObjectName(u"u_in_2_lbl")
-        self.u_in_2_lbl.setGeometry(QRect(20, 200, 47, 13))
+        self.label_31.setGeometry(QRect(20, 140, 51, 31))
+        self.label_31.setFont(font)
         self.in2_t_pos_imp_lineEdit = QLineEdit(self.groupBox_2)
         self.in2_t_pos_imp_lineEdit.setObjectName(u"in2_t_pos_imp_lineEdit")
         self.in2_t_pos_imp_lineEdit.setGeometry(QRect(170, 20, 61, 20))
@@ -194,7 +188,7 @@ class Ui_MainWindow(object):
         self.in2_t_neg_imp_lineEdit.setGeometry(QRect(170, 60, 61, 20))
         self.state_in_2_lbl = QLabel(self.groupBox_2)
         self.state_in_2_lbl.setObjectName(u"state_in_2_lbl")
-        self.state_in_2_lbl.setGeometry(QRect(10, 220, 91, 21))
+        self.state_in_2_lbl.setGeometry(QRect(150, 110, 91, 21))
         self.state_in_2_lbl.setStyleSheet(u"QLabel {\n"
 "	border:4px solid rgb(109, 109, 109);\n"
 "	background-color: rgb(255, 170, 0);\n"
@@ -202,7 +196,10 @@ class Ui_MainWindow(object):
 "}")
         self.u_in_2_lcd = QLCDNumber(self.groupBox_2)
         self.u_in_2_lcd.setObjectName(u"u_in_2_lcd")
-        self.u_in_2_lcd.setGeometry(QRect(70, 170, 81, 23))
+        self.u_in_2_lcd.setGeometry(QRect(80, 140, 91, 31))
+        self.u_in_2_lcd.setStyleSheet(u"QLCDNumber {\n"
+"	color: rgb(0, 255, 0);\n"
+"}")
 
         self.horizontalLayout.addWidget(self.groupBox_2)
 
@@ -220,15 +217,10 @@ class Ui_MainWindow(object):
         self.label_22 = QLabel(self.groupBox_3)
         self.label_22.setObjectName(u"label_22")
         self.label_22.setGeometry(QRect(10, 110, 101, 21))
-        self.label_26 = QLabel(self.groupBox_3)
-        self.label_26.setObjectName(u"label_26")
-        self.label_26.setGeometry(QRect(150, 110, 61, 21))
         self.label_32 = QLabel(self.groupBox_3)
         self.label_32.setObjectName(u"label_32")
-        self.label_32.setGeometry(QRect(20, 170, 47, 13))
-        self.u_in_3_lbl = QLabel(self.groupBox_3)
-        self.u_in_3_lbl.setObjectName(u"u_in_3_lbl")
-        self.u_in_3_lbl.setGeometry(QRect(20, 200, 47, 13))
+        self.label_32.setGeometry(QRect(10, 140, 51, 31))
+        self.label_32.setFont(font)
         self.in3_t_pos_imp_lineEdit = QLineEdit(self.groupBox_3)
         self.in3_t_pos_imp_lineEdit.setObjectName(u"in3_t_pos_imp_lineEdit")
         self.in3_t_pos_imp_lineEdit.setGeometry(QRect(170, 20, 61, 20))
@@ -237,7 +229,7 @@ class Ui_MainWindow(object):
         self.in3_t_neg_imp_lineEdit.setGeometry(QRect(170, 60, 61, 20))
         self.state_in_3_lbl = QLabel(self.groupBox_3)
         self.state_in_3_lbl.setObjectName(u"state_in_3_lbl")
-        self.state_in_3_lbl.setGeometry(QRect(10, 220, 81, 21))
+        self.state_in_3_lbl.setGeometry(QRect(160, 110, 81, 21))
         self.state_in_3_lbl.setStyleSheet(u"QLabel {\n"
 "	border:4px solid rgb(109, 109, 109);\n"
 "	background-color: rgb(255, 170, 0);\n"
@@ -245,7 +237,10 @@ class Ui_MainWindow(object):
 "}")
         self.u_in_3_lcd = QLCDNumber(self.groupBox_3)
         self.u_in_3_lcd.setObjectName(u"u_in_3_lcd")
-        self.u_in_3_lcd.setGeometry(QRect(70, 170, 64, 23))
+        self.u_in_3_lcd.setGeometry(QRect(100, 140, 91, 31))
+        self.u_in_3_lcd.setStyleSheet(u"QLCDNumber {\n"
+"	color: rgb(0, 255, 0);\n"
+"}")
 
         self.horizontalLayout.addWidget(self.groupBox_3)
 
@@ -263,15 +258,10 @@ class Ui_MainWindow(object):
         self.label_23 = QLabel(self.groupBox_4)
         self.label_23.setObjectName(u"label_23")
         self.label_23.setGeometry(QRect(10, 110, 101, 21))
-        self.label_27 = QLabel(self.groupBox_4)
-        self.label_27.setObjectName(u"label_27")
-        self.label_27.setGeometry(QRect(150, 110, 61, 21))
         self.label_33 = QLabel(self.groupBox_4)
         self.label_33.setObjectName(u"label_33")
-        self.label_33.setGeometry(QRect(10, 170, 47, 13))
-        self.u_in_4_lbl = QLabel(self.groupBox_4)
-        self.u_in_4_lbl.setObjectName(u"u_in_4_lbl")
-        self.u_in_4_lbl.setGeometry(QRect(10, 200, 47, 13))
+        self.label_33.setGeometry(QRect(20, 140, 51, 31))
+        self.label_33.setFont(font)
         self.in4_t_pos_imp_lineEdit = QLineEdit(self.groupBox_4)
         self.in4_t_pos_imp_lineEdit.setObjectName(u"in4_t_pos_imp_lineEdit")
         self.in4_t_pos_imp_lineEdit.setGeometry(QRect(170, 20, 61, 20))
@@ -280,7 +270,7 @@ class Ui_MainWindow(object):
         self.in4_t_neg_imp_lineEdit.setGeometry(QRect(170, 60, 61, 20))
         self.state_in_4_lbl = QLabel(self.groupBox_4)
         self.state_in_4_lbl.setObjectName(u"state_in_4_lbl")
-        self.state_in_4_lbl.setGeometry(QRect(10, 220, 81, 21))
+        self.state_in_4_lbl.setGeometry(QRect(160, 110, 81, 21))
         self.state_in_4_lbl.setStyleSheet(u"QLabel {\n"
 "	border:4px solid rgb(109, 109, 109);\n"
 "	background-color: rgb(255, 170, 0);\n"
@@ -288,7 +278,10 @@ class Ui_MainWindow(object):
 "}")
         self.u_in_4_lcd = QLCDNumber(self.groupBox_4)
         self.u_in_4_lcd.setObjectName(u"u_in_4_lcd")
-        self.u_in_4_lcd.setGeometry(QRect(60, 170, 64, 23))
+        self.u_in_4_lcd.setGeometry(QRect(100, 140, 91, 31))
+        self.u_in_4_lcd.setStyleSheet(u"QLCDNumber {\n"
+"	color: rgb(0, 255, 0);\n"
+"}")
 
         self.horizontalLayout.addWidget(self.groupBox_4)
 
@@ -331,7 +324,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1190, 21))
+        self.menubar.setGeometry(QRect(0, 0, 1190, 33))
         MainWindow.setMenuBar(self.menubar)
 
         self.retranslateUi(MainWindow)
@@ -364,38 +357,29 @@ class Ui_MainWindow(object):
         self.connect_ckiu_2_btn.setText(QCoreApplication.translate("MainWindow", u"Start / Connect", None))
         self.close_ckiu_2_btn.setText(QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043a\u043b\u044e\u0447\u0438\u0442\u044c", None))
         self.label_19.setText(QCoreApplication.translate("MainWindow", u"\u0410\u0426\u041f U \u0432\u0445", None))
-        self.u_in_acp_lbl.setText(QCoreApplication.translate("MainWindow", u"U", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 1", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043f\u043e\u043b\u043e\u0436\u0438\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043e\u0442\u0440\u0438\u0446\u0430\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_20.setText(QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u0432\u0445\u043e\u0434\u0430", None))
-        self.label_24.setText(QCoreApplication.translate("MainWindow", u"\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435", None))
-        self.label_29.setText(QCoreApplication.translate("MainWindow", u"U \u0432\u0445", None))
-        self.u_in_1_lbl.setText(QCoreApplication.translate("MainWindow", u"U", None))
+        self.label_29.setText(QCoreApplication.translate("MainWindow", u"U\u0432\u0445", None))
         self.state_in_1_lbl.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 2", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043f\u043e\u043b\u043e\u0436\u0438\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043e\u0442\u0440\u0438\u0446\u0430\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_21.setText(QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u0432\u0445\u043e\u0434\u0430", None))
-        self.label_25.setText(QCoreApplication.translate("MainWindow", u"\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435", None))
-        self.label_31.setText(QCoreApplication.translate("MainWindow", u"U \u0432\u0445", None))
-        self.u_in_2_lbl.setText(QCoreApplication.translate("MainWindow", u"U", None))
+        self.label_31.setText(QCoreApplication.translate("MainWindow", u"U\u0432\u0445", None))
         self.state_in_2_lbl.setText("")
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 3", None))
         self.label_13.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043f\u043e\u043b\u043e\u0436\u0438\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043e\u0442\u0440\u0438\u0446\u0430\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_22.setText(QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u0432\u0445\u043e\u0434\u0430", None))
-        self.label_26.setText(QCoreApplication.translate("MainWindow", u"\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435", None))
-        self.label_32.setText(QCoreApplication.translate("MainWindow", u"U \u0432\u0445", None))
-        self.u_in_3_lbl.setText(QCoreApplication.translate("MainWindow", u"U", None))
+        self.label_32.setText(QCoreApplication.translate("MainWindow", u"U\u0432\u0445", None))
         self.state_in_3_lbl.setText("")
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 4", None))
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043f\u043e\u043b\u043e\u0436\u0438\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"\u0432\u0440\u0435\u043c\u044f \u043e\u0442\u0440\u0438\u0446\u0430\u0442. \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u0430", None))
         self.label_23.setText(QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u0432\u0445\u043e\u0434\u0430", None))
-        self.label_27.setText(QCoreApplication.translate("MainWindow", u"\u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435", None))
-        self.label_33.setText(QCoreApplication.translate("MainWindow", u"U \u0432\u0445", None))
-        self.u_in_4_lbl.setText(QCoreApplication.translate("MainWindow", u"U", None))
+        self.label_33.setText(QCoreApplication.translate("MainWindow", u"U\u0432\u0445", None))
         self.state_in_4_lbl.setText("")
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.skiu2), QCoreApplication.translate("MainWindow", u"\u0421\u041a\u0418\u04232", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"COM PORT", None))
