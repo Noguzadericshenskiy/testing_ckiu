@@ -4,8 +4,9 @@ import time
 import PySide6
 
 from PySide6 import QtGui
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QFile, QIODevice
 from PySide6.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QTableWidgetItem
+from PySide6.QtUiTools import QUiLoader
 
 from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
@@ -283,8 +284,15 @@ class MainWindow(QMainWindow):
                 "QLabel {background-color : #f77b07; border:4px solid rgb(109, 109, 109)}")
 
 
+def include_style(app):
+    with open("style.qss", "r") as f:
+        _style = f.read()
+        app.setStyleSheet(_style)
+
+
 if __name__ == "__main__":
     app = QApplication([])
     widget = MainWindow()
+    include_style(app)
     widget.show()
     sys.exit(app.exec())

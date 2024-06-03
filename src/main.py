@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_v4.ui'
+## Form generated from reading UI file 'main_v5.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.1
 ##
@@ -24,9 +24,8 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1190, 615)
-        MainWindow.setStyleSheet(u"background-color: rgb(85, 170, 255);\n"
-"color: rgb(0, 0, 0);")
+        MainWindow.resize(1181, 593)
+        MainWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.tabWidget = QTabWidget(self.centralwidget)
@@ -324,7 +323,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1190, 33))
+        self.menubar.setGeometry(QRect(0, 0, 1181, 21))
         MainWindow.setMenuBar(self.menubar)
 
         self.retranslateUi(MainWindow)
