@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1181</width>
-    <height>593</height>
+    <width>1183</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>50</y>
       <width>1161</width>
       <height>511</height>
@@ -273,11 +273,17 @@
      <widget class="QRadioButton" name="version_acp_radioButton">
       <property name="geometry">
        <rect>
-        <x>690</x>
-        <y>20</y>
-        <width>131</width>
+        <x>580</x>
+        <y>40</y>
+        <width>141</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>141</width>
+        <height>17</height>
+       </size>
       </property>
       <property name="text">
        <string>Старая версия АЦП</string>
@@ -286,11 +292,17 @@
      <widget class="QRadioButton" name="version_ibp_radioButton">
       <property name="geometry">
        <rect>
-        <x>690</x>
-        <y>50</y>
+        <x>580</x>
+        <y>60</y>
         <width>141</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>141</width>
+        <height>17</height>
+       </size>
       </property>
       <property name="text">
        <string>формат ИД-ИБП-04Д</string>
@@ -901,6 +913,53 @@
 }</string>
       </property>
      </widget>
+     <widget class="QRadioButton" name="version_old_ckiu_radioButton">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>20</y>
+        <width>141</width>
+        <height>18</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>141</width>
+        <height>17</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Старая версия (реле)</string>
+      </property>
+     </widget>
+     <widget class="QLCDNumber" name="counter_err_conn_lcd">
+      <property name="geometry">
+       <rect>
+        <x>1020</x>
+        <y>70</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLCDNumber {
+	color: rgb(0, 255, 0);
+}</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>890</x>
+        <y>80</y>
+        <width>111</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Ошибки связи</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -1011,8 +1070,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1181</width>
-     <height>21</height>
+     <width>1183</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

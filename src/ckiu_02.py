@@ -17,6 +17,7 @@ class Server485(QThread):
     """
     sig = Signal(tuple)
     sig1 = Signal(tuple)
+    sig_disconnect = Signal(bool)
     def __init__(self, conn, port, speed, msg, params):
         super().__init__()
         self.port = port
@@ -28,25 +29,21 @@ class Server485(QThread):
 
     def run(self) -> None:
         # self.conn = serial.Serial(port=self.port, baudrate=self.speed, timeout=1)
-        # try:
+        try:
             while True:
-                self.conn.write(self.commands[80])
-                self.handler_response()
-                # time.sleep(0.1)
-                self.conn.write(self.commands[81])
-                # print(81, self.commands[81].hex())
-                self.handler_response()
-                # time.sleep(0.1)
-                # self.conn.write(self.commands[82])
-                # self.handler_response()
+                for msg in self.commands:
+                    self.conn.write(msg)
+                    if not self.handler_response():
+                        self.sig_disconnect.emit(True)
+
                 # print(82, self.commands[82].hex())
                 # time.sleep(0.1)
                 # self.conn.write(self.commands[83])
                 # self.handler_response()
                 # time.sleep(0.1)
             # self.conn.write(self.commands[1])
-        # except:
-        #     PortNotOpenError()
+        except:
+            PortNotOpenError()
 
     def handler_response(self):
         if self.conn.read().hex() == b"\xb9".hex() and self.conn.read().hex() == b"\x46".hex():
@@ -71,6 +68,9 @@ class Server485(QThread):
                 if int.from_bytes(crc, "little") == crc_in:
                     self.sig.emit((str(int.from_bytes(version_po, "little")),
                                    str(int.from_bytes(sub_version_po, "little"))))
+                    return True
+                else:
+                    return False
                     # print("crc is ok", int.from_bytes(version_po, "little"), int.from_bytes(sub_version_po, "little"))
             elif cmd.hex() == "01" and int.from_bytes(length, "little") == 4:
                 # elif (cmd.hex() == "01" or cmd.hex() == "00") and int.from_bytes(length, "little") == 4:
@@ -89,15 +89,18 @@ class Server485(QThread):
                     self.params[0] = u_in.hex()
                     statuse_in = self.update_status_in(states_out)
                     self.sig1.emit((u, statuse_in))
+                    return True
+                else:
+                    return False
 
             elif cmd.hex() == "02":
                 print("03")
-                # start_byte = self.conn.read()
-                # acp_u_in_1 = self.conn.read()
-                # acp_u_in_2 = self.conn.read()
-                # acp_u_in_3 = self.conn.read()
-                # acp_u_in_4 = self.conn.read()
-                # crc = self.conn.read(2)
+                start_byte = self.conn.read()
+                acp_u_in_1 = self.conn.read()
+                acp_u_in_2 = self.conn.read()
+                acp_u_in_3 = self.conn.read()
+                acp_u_in_4 = self.conn.read()
+                crc = self.conn.read(2)
                 # # print(f"in-1- type{type_dev.hex()} snl({sn_lo.hex()}) snh({sn_hi.hex()}) len({length.hex()}) cmd({cmd.hex()})")
                 # ans_msg.append(int.from_bytes(start_byte, "little"))
                 # ans_msg.append(int.from_bytes(acp_u_in_1, "little"))
@@ -123,6 +126,8 @@ class Server485(QThread):
             #     ...
             elif cmd.hex() == "e0" and int.from_bytes(length, "little") == 2:
                 print("Неизвесная команда")
+                return False
+
 
     def update_status_in(self, statuses):
         status_b = bin(int.from_bytes(statuses, byteorder='big'))[2:].zfill(8)
