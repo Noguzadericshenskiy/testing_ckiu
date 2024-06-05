@@ -16,9 +16,9 @@ from src.ckiu_02 import Server485
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Тестер СКИУ")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle("Тестер для СКИУ")
         self.ui.connect_btn.clicked.connect(self._connect_01)
         self.ui.close_btn.clicked.connect(self._close)
         self.ui.connect_ckiu_2_btn.clicked.connect(self._connect_02)
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         self.messages = []
         self.sn = None
         self._ports_out()
-        self.speeds_out()
+        self._speeds_out()
         self.conn = None
         self.server = None
         self.params = ["0"]
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         for port in self.ports:
             self.ui.port_comboBox.addItem(port[1])
 
-    def speeds_out(self):
+    def _speeds_out(self):
         self.ui.speed_comboBox.addItem("19200")
         self.ui.speed_comboBox.addItem("9600")
 
@@ -122,9 +122,9 @@ class MainWindow(QMainWindow):
                 self._request_acp_ckiu_02_ibp()
             if self.server == None:
                 self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
-                self.server.sig.connect(self.update_version)
-                self.server.sig1.connect(self.update_state)
-                self.server.sig_disconnect.connect(self.counter_disconnect_ckiu)
+                self.server.sig.connect(self._update_version)
+                self.server.sig1.connect(self._update_state)
+                self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
                 self.server.start()
 
         else:
@@ -204,12 +204,12 @@ class MainWindow(QMainWindow):
         self.messages.append(msg)
 
     @Slot(tuple)
-    def update_version(self, new_item):
+    def _update_version(self, new_item):
         self.ui.version_ckiu2_lbl.setText(new_item[0])
         self.ui.sub_version_ckiu2_lbl.setText(new_item[1])
 
     @Slot(tuple)
-    def update_state(self, new_item):
+    def _update_state(self, new_item):
         style_norma = "QLabel {color: black; background-color : #07f73b; border:4px solid rgb(109, 109, 109)}"
         style_kz = "QLabel {color: black; background-color : #f70717; border:4px solid rgb(109, 109, 109)}"
         style_on = "QLabel {color: black; background-color : #026600; border:4px solid rgb(109, 109, 109)}"
@@ -270,11 +270,15 @@ class MainWindow(QMainWindow):
             self.ui.state_in_4_lbl.setStyleSheet(style_breakage)
 
     @Slot(bool)
-    def counter_disconnect_ckiu(self):
+    def _counter_disconnect_ckiu(self):
         self.count_err_conn += 1
         self.ui.counter_err_conn_lcd.display(self.count_err_conn)
         if self.count_err_conn > 1:
             self.ui.counter_err_conn_lcd.setStyleSheet("QLCDNumber {background-color: #8c6501;}")
+
+    @Slot(tuple)
+    def _update_u_in(self, item):
+        print(item)
 
 
 def include_style(app):
