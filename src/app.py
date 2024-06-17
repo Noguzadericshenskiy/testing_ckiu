@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
             if port[1] == port_in:
                 port_name = port[0]
         speed = self.ui.speed_comboBox.currentText()
-        self.conn = serial.Serial(port=port_name, baudrate=speed, timeout=1)
+        self.conn = serial.Serial(port=port_name, baudrate=speed, timeout=0.3)
         if self.conn.is_open:
             self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
             self._request_version_ckiu_02()
@@ -129,6 +129,7 @@ class MainWindow(QMainWindow):
                 self.server.sig.connect(self._update_version)
                 self.server.sig1.connect(self._update_state)
                 self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
+                self.server.sig_u_acp.connect(self._update_u_in)
                 self.server.start()
 
         else:
@@ -280,9 +281,9 @@ class MainWindow(QMainWindow):
         if self.count_err_conn > 1:
             self.ui.counter_err_conn_lcd.setStyleSheet("QLCDNumber {background-color: #8c6501;}")
 
-    @Slot(tuple)
+    @Slot(float)
     def _update_u_in(self, item):
-        print(item)
+        self.ui.u_in_lcd.display(item)
 
 
 def include_style(app):
