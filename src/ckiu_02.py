@@ -1,7 +1,7 @@
 import serial
 import time
 
-
+from loguru import logger
 from PySide6.QtCore import Signal, QThread
 
 # from threading import Thread
@@ -34,9 +34,12 @@ class Server485(QThread):
         try:
             while True:
                 for msg in self.commands:
+                    self.conn.reset_input_buffer()
+
                     self.conn.write(msg)
                     if not self.handler_response():
                         self.sig_disconnect.emit(True)
+                self.conn.flush()
 
                 # print(82, self.commands[82].hex())
                 # time.sleep(0.1)
@@ -121,11 +124,14 @@ class Server485(QThread):
 #         0xB6, 0x49, 0x1B, <адрес мл. байт>, <адрес ст. байт>, 0x01, 0x82, <CRC16 мл. байт>, <CRC16 ст. байт>
 # Ответ:  0xB9, 0x46, 0x1B, <адрес мл. байт>, <адрес ст. байт>, 0x06, 0x02, <0x00>, <АЦПuвх1>, <0x00>, <0x00>, <0x00>, <CRC16 мл. байт>, <CRC16 ст. байт>
             elif cmd.hex() == "03":
-                zero_byte = self.conn.read(2)
-                u_in_lo = self.conn.read()
-                u_in_hi = self.conn.read()
-                zero_byte2c = self.conn.read(14)
-                print(zero_byte.hex(), u_in_lo.hex(), u_in_hi.hex())
+                ans = self.conn.read_all()
+                logger.info(f"ans 03 {ans.hex()}")
+                # zero_byte = self.conn.read(2)
+                # u_in_lo = self.conn.read()
+                # u_in_hi = self.conn.read()
+                # zero_byte2c = self.conn.read(14)
+
+                # logger.info(f"cmd 03 {zero_byte.hex()}{zero_byte.hex()}{zero_byte.hex()}")
 
             # elif cmd.hex() == "23":
             #     ...
@@ -134,7 +140,7 @@ class Server485(QThread):
             # elif cmd.hex() == "e0":
             #     ...
             elif cmd.hex() == "e0" and int.from_bytes(length, "little") == 2:
-                print("Неизвесная команда")
+                logger.info("Неизвесная команда")
                 return False
 
     # 0xB6, 0x49, 0x1B, < адрес мл.байт >, < адрес ст.байт >, 0x01, 0x83, < CRC16 мл.байт >, < CRC16 ст.байт >

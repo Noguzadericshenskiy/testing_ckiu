@@ -11,6 +11,7 @@ from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
 from src.ckiu_02 import Server485
+from src.skiu import Server485V2
 
 
 class MainWindow(QMainWindow):
@@ -39,8 +40,8 @@ class MainWindow(QMainWindow):
 
     def _setup_param_default(self):
         # ===================================
-        self.ui.sn_lineEdit.setText("35690")
-        self.ui.sn_lineEdit.setText("10411")
+        # self.ui.sn_lineEdit.setText("35690")
+        self.ui.sn_lineEdit.setText("1234")
         # ===================================
         self.ui.version_old_ckiu_radioButton.setChecked(True)
         self.ui.in1_t_pos_imp_lineEdit.setText("0")
@@ -120,8 +121,11 @@ class MainWindow(QMainWindow):
                 self._request_acp_ckiu_02_old()
             if self.ui.version_ibp_radioButton.isChecked():
                 self._request_acp_ckiu_02_ibp()
+
+
             if self.server == None:
-                self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
+                self.server = Server485V2(self.conn, port_name, speed, self.messages, self.params, self.sn)
+                # self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
                 self.server.sig.connect(self._update_version)
                 self.server.sig1.connect(self._update_state)
                 self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
