@@ -18,19 +18,19 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle("Тестер для СКИУ")
-        self.ui.connect_btn.clicked.connect(self._connect_01)
+        self.setWindowTitle("Тестер устройст RS-485")
+        # self.ui.connect_btn.clicked.connect(self._connect_01)
         self.ui.close_btn.clicked.connect(self._close)
         self.ui.connect_ckiu_2_btn.clicked.connect(self._start_ckiu_02)
         self.ui.close_ckiu_2_btn.clicked.connect(self._close)
         self.ui.update_btn.clicked.connect(self._update_port)
 
         self.ports = []
-        self.messages = []
-        self.sn = None
+        # self.messages = []
+        # self.sn = None
         self._ports_out()
         self._speeds_out()
-        self.conn = None
+        # self.conn = None
         self.server = None
         self.params = ["0"]
         self.count_err_conn = 0
@@ -65,32 +65,9 @@ class MainWindow(QMainWindow):
         self.ui.speed_comboBox.addItem("19200")
         self.ui.speed_comboBox.addItem("9600")
 
-    def _connect_01(self):
-        ...
-        # port_name = None
-        # port_in = self.ui.port_comboBox.currentText()
-        # for port in self.ports:
-        #     if port[1] == port_in:
-        #         port_name = port[0]
-        # speed = self.ui.speed_comboBox.currentText()
-        # conn = serial.Serial(port=port_name, baudrate=speed, timeout=1)
-        # self.sn = int(self.ui.sn_lineEdit.text())
-        # if conn.is_open:
-        #     self.conn = conn
-        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207;}")
-        #     self.ui.connect_btn.setStyleSheet("QLabel {background-color: #36f207;}")
-        #     msg = bytearray(b"\xb6\x49\x08\x6a\x8b\x09\x81\x0a\x0a\x00\x00\x00\x00\x00\x00")
-        #     crc = crc_ccitt_16_kermit_b(msg)
-        #     c = add_crc(msg, crc)
-        #     for _ in range(100):
-        #         # Вывести в отдельный тред и уменьшить частоту отправки пакета
-        #         self.conn.write(c)
-        # else:
-        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01;}")
-
     def _close(self):
-        if self.conn != None:
-            self.conn.close()
+        # if self.conn != None:
+        #     self.conn.close()
             self.server = None
             self.ui.state_lbl.setStyleSheet(
                 "QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
@@ -102,37 +79,44 @@ class MainWindow(QMainWindow):
     def _start_ckiu_02(self):
         """Запуск СКИУ02"""
         self.count_err_conn = 0
-        self.messages = []
+        # self.messages = []
         port_name = None
         port_in = self.ui.port_comboBox.currentText()
-        self.sn = int(self.ui.sn_lineEdit.text())
+        sn = int(self.ui.sn_lineEdit.text())
         for port in self.ports:
             if port[1] == port_in:
                 port_name = port[0]
         speed = self.ui.speed_comboBox.currentText()
-        self.conn = serial.Serial(port=port_name, baudrate=speed, timeout=0.3)
-        if self.conn.is_open:
-            self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
-            self._request_version_ckiu_02()
-            self._request_scan_ckiu_02()
+        thread_server = ServerCKIU(
+            port=port_name,
+            speed=speed,
+            sn=sn,
+            params=
+        )
 
-            if self.ui.version_acp_radioButton.isChecked():
-                self._request_acp_ckiu_02_old()
-            if self.ui.version_ibp_radioButton.isChecked():
-                self._request_acp_ckiu_02_ibp()
+        #
+        # if self.conn.is_open:
+        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
+        #     self._request_version_ckiu_02()
+        #     self._request_scan_ckiu_02()
 
-
-            if self.server == None:
-                self.server = ServerCKIU(self.conn, port_name, speed, self.messages, self.params, self.sn)
-                # self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
-                self.server.sig.connect(self._update_version)
-                self.server.sig1.connect(self._update_state)
-                self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
-                self.server.sig_u_acp.connect(self._update_u_in)
-                self.server.start()
-
-        else:
-            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
+        #     if self.ui.version_acp_radioButton.isChecked():
+        #         self._request_acp_ckiu_02_old()
+        #     if self.ui.version_ibp_radioButton.isChecked():
+        #         self._request_acp_ckiu_02_ibp()
+        #
+        #
+        #     if self.server == None:
+        #         self.server = ServerCKIU(self.conn, port_name, speed, self.messages, self.params, self.sn)
+        #         # self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
+        #         self.server.sig.connect(self._update_version)
+        #         self.server.sig1.connect(self._update_state)
+        #         self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
+        #         self.server.sig_u_acp.connect(self._update_u_in)
+        #         self.server.start()
+        #
+        # else:
+        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
     def _request_version_ckiu_02(self):
         msg = bytearray(b"\xb6\x49\x1b")

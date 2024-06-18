@@ -14,24 +14,21 @@ class ServerCKIU(QThread):
     sig_disconnect = Signal(bool)
     sig_u_acp = Signal(float)
 
-    def __init__(self, conn, port, speed, msg, params, sn):
+    def __init__(self, port, speed, sn, params):
         super().__init__()
         self.port = port
         self.speed = speed
-        self.commands = msg
         self.daemon = True
-        self.conn = conn
-        self.params = params
         self.sn = sn
+        self.params = params
 
     def run(self) -> None:
-        # self.conn = serial.Serial(port=self.port, baudrate=self.speed, timeout=1)
-        # self.conn = Serial(
-        #     port=self.port,
-        #     baudrate=self.speed,
-        #     timeout=0.3,
-        #     # rs485_mode=rs485.RS485Settings()
-        # )
+        self.conn = Serial(
+            port=self.port,
+            baudrate=self.speed,
+            timeout=0.3,
+            # rs485_mode=rs485.RS485Settings()
+        )
 
         # self._delete_config(self.sn)
         self.awaken()
