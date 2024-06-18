@@ -9,7 +9,7 @@ from PySide6.QtUiTools import QUiLoader
 from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
-from src.ckiu_02 import Server485
+from src.ckiu_02_old import Server485
 from src.сkiu import ServerCKIU
 
 
@@ -26,11 +26,8 @@ class MainWindow(QMainWindow):
         self.ui.update_btn.clicked.connect(self._update_port)
 
         self.ports = []
-        # self.messages = []
-        # self.sn = None
         self._ports_out()
         self._speeds_out()
-        # self.conn = None
         self.server = None
         self.params = ["0"]
         self.count_err_conn = 0
@@ -66,8 +63,8 @@ class MainWindow(QMainWindow):
         self.ui.speed_comboBox.addItem("9600")
 
     def _close(self):
-        # if self.conn != None:
-        #     self.conn.close()
+        if self.server != None:
+            self.server.stop_server()
             self.server = None
             self.ui.state_lbl.setStyleSheet(
                 "QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
@@ -75,6 +72,19 @@ class MainWindow(QMainWindow):
                 "QLCDNumber {background-color: #00557f;}")
             self.ui.counter_err_conn_lcd.display(0)
             self.count_err_conn = 0
+
+    def _get_params_out_ckiu02(self):
+        params = {
+            "in1_pos": int(self.ui.in1_t_pos_imp_lineEdit.text()),
+            "in1_neg": int(self.ui.in1_t_neg_imp_lineEdit.text()),
+            "in2_pos": int(self.ui.in2_t_pos_imp_lineEdit.text()),
+            "in2_neg": int(self.ui.in2_t_neg_imp_lineEdit.text()),
+            "in3_pos": int(self.ui.in3_t_pos_imp_lineEdit.text()),
+            "in3_neg": int(self.ui.in3_t_neg_imp_lineEdit.text()),
+            "in4_pos": int(self.ui.in4_t_pos_imp_lineEdit.text()),
+            "in4_neg": int(self.ui.in4_t_neg_imp_lineEdit.text()),
+        }
+        return params
 
     def _start_ckiu_02(self):
         """Запуск СКИУ02"""
@@ -87,14 +97,28 @@ class MainWindow(QMainWindow):
             if port[1] == port_in:
                 port_name = port[0]
         speed = self.ui.speed_comboBox.currentText()
-        thread_server = ServerCKIU(
+        self.server = ServerCKIU(
             port=port_name,
             speed=speed,
             sn=sn,
-            params=
+            params=self._get_params_out_ckiu02()
         )
 
-        #
+        if self.ui.version_old_ckiu_radioButton.isChecked():
+            ...
+        if self.ui.version_acp_radioButton.isChecked():
+            ...
+        if self.ui.version_ibp_radioButton.isChecked():
+            ...
+
+        self.server.sig_conn.connect(self._sig_connect)
+        self.server.sig_u_acp.connect(self._update_u_acp)
+        self.server.sig_count.connect(self._counter_disconnect_ckiu)
+        self.server.sig_state.connect(self._update_state_out)
+        self.server.sig_version.connect(self._update_version)
+
+        self.server.start()
+
         # if self.conn.is_open:
         #     self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
         #     self._request_version_ckiu_02()
@@ -118,86 +142,13 @@ class MainWindow(QMainWindow):
         # else:
         #     self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
-    def _request_version_ckiu_02(self):
-        msg = bytearray(b"\xb6\x49\x1b")
-        # self.sn = int(self.ui.sn_lineEdit.text())
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(1)       # 01
-        msg.append(128)     # 80
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg)) # +crc
-        self.messages.append(msg)
-
-    def _request_scan_ckiu_02(self):
-        in1_t_pos_imp_lineEdit = int(self.ui.in1_t_pos_imp_lineEdit.text())
-        in1_t_neg_imp_lineEdit = int(self.ui.in1_t_neg_imp_lineEdit.text())
-        in2_t_pos_imp_lineEdit = int(self.ui.in2_t_pos_imp_lineEdit.text())
-        in2_t_neg_imp_lineEdit = int(self.ui.in2_t_neg_imp_lineEdit.text())
-        in3_t_pos_imp_lineEdit = int(self.ui.in3_t_pos_imp_lineEdit.text())
-        in3_t_neg_imp_lineEdit = int(self.ui.in3_t_neg_imp_lineEdit.text())
-        in4_t_pos_imp_lineEdit = int(self.ui.in4_t_pos_imp_lineEdit.text())
-        in4_t_neg_imp_lineEdit = int(self.ui.in4_t_neg_imp_lineEdit.text())
-        msg = bytearray(b"\xb6\x49\x1b")
-        # self.sn = int(self.ui.sn_lineEdit.text())
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(9)  # 09
-        msg.append(129)  # 81
-        msg.append(in1_t_pos_imp_lineEdit)    #
-        msg.append(in1_t_neg_imp_lineEdit)    #
-        msg.append(in2_t_pos_imp_lineEdit)    #
-        msg.append(in2_t_neg_imp_lineEdit)    #
-        msg.append(in3_t_pos_imp_lineEdit)    #
-        msg.append(in3_t_neg_imp_lineEdit)    #
-        msg.append(in4_t_pos_imp_lineEdit)    #
-        msg.append(in4_t_neg_imp_lineEdit)    #
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
-
-    def _request_acp_ckiu_02_old(self):
-        msg = bytearray(b"\xb6\x49\x1b")
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(1)  # 01
-        msg.append(130)  # 82
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
-
-    def _request_acp_ckiu_02_ibp(self):
-        msg = bytearray(b"\xb6\x49\x1b")
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(1)  # 01
-        msg.append(131)  # 83
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
-
-    def _request_rebut_ckiu_02(self):
-        msg = bytearray(b"\xb6\x49\x1b")
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(1)  # 01
-        msg.append(209)  # D1
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
-
-    def _request_str_debug(self):
-        msg = bytearray(b"\xb6\x49\x1b")
-        msg.append(self.sn % 256)
-        msg.append(self.sn // 256)
-        msg.append(1)  # 05
-        msg.append(163)  # A3
-        num_str = 0
-        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        self.messages.append(msg)
-
     @Slot(tuple)
     def _update_version(self, new_item):
         self.ui.version_ckiu2_lbl.setText(new_item[0])
         self.ui.sub_version_ckiu2_lbl.setText(new_item[1])
 
     @Slot(tuple)
-    def _update_state(self, new_item):
+    def _update_state_out(self, new_item):
         style_norma = "QLabel {color: black; background-color : #07f73b; border:4px solid rgb(109, 109, 109)}"
         style_kz = "QLabel {color: black; background-color : #f70717; border:4px solid rgb(109, 109, 109)}"
         style_on = "QLabel {color: black; background-color : #026600; border:4px solid rgb(109, 109, 109)}"
@@ -208,65 +159,77 @@ class MainWindow(QMainWindow):
         st_in_2 = int(new_item[1][1])
         st_in_3 = int(new_item[1][2])
         st_in_4 = int(new_item[1][3])
-        if st_in_1 == 0:
-            self.ui.state_in_1_lbl.setText("Норма")
-            self.ui.state_in_1_lbl.setStyleSheet(style_norma)
-        elif st_in_1 == 1:
-            self.ui.state_in_1_lbl.setText("КЗ")
-            self.ui.state_in_1_lbl.setStyleSheet(style_kz)
-        elif st_in_1 == 10:
-            self.ui.state_in_1_lbl.setText("Включен")
-            self.ui.state_in_1_lbl.setStyleSheet(style_on)
-        elif st_in_1 == 11:
-            self.ui.state_in_1_lbl.setText("Обрыв")
-            self.ui.state_in_1_lbl.setStyleSheet(style_breakage)
-        if st_in_2 == 0:
-            self.ui.state_in_2_lbl.setText("Норма")
-            self.ui.state_in_2_lbl.setStyleSheet(style_norma)
-        elif st_in_2 == 1:
-            self.ui.state_in_2_lbl.setText("КЗ")
-            self.ui.state_in_2_lbl.setStyleSheet(style_kz)
-        elif st_in_2 == 10:
-            self.ui.state_in_2_lbl.setText("Включен")
-            self.ui.state_in_2_lbl.setStyleSheet(style_on)
-        elif st_in_2 == 11:
-            self.ui.state_in_2_lbl.setText("Обрыв")
-            self.ui.state_in_2_lbl.setStyleSheet(style_breakage)
-        if st_in_3 == 0:
-            self.ui.state_in_3_lbl.setText("Норма")
-            self.ui.state_in_3_lbl.setStyleSheet(style_norma)
-        elif st_in_3 == 1:
-            self.ui.state_in_3_lbl.setText("КЗ")
-            self.ui.state_in_3_lbl.setStyleSheet(style_kz)
-        elif st_in_3 == 10:
-            self.ui.state_in_3_lbl.setText("Включен")
-            self.ui.state_in_3_lbl.setStyleSheet(style_on)
-        elif st_in_3 == 11:
-            self.ui.state_in_3_lbl.setText("Обрыв")
-            self.ui.state_in_3_lbl.setStyleSheet(style_breakage)
-        if st_in_4 == 0:
-            self.ui.state_in_4_lbl.setText("Норма")
-            self.ui.state_in_4_lbl.setStyleSheet(style_norma)
-        elif st_in_4 == 1:
-            self.ui.state_in_4_lbl.setText("КЗ")
-            self.ui.state_in_4_lbl.setStyleSheet(style_kz)
-        elif st_in_4 == 10:
-            self.ui.state_in_4_lbl.setText("Включен")
-            self.ui.state_in_4_lbl.setStyleSheet(style_on)
-        elif st_in_4 == 11:
-            self.ui.state_in_4_lbl.setText("Обрыв")
-            self.ui.state_in_4_lbl.setStyleSheet(style_breakage)
+
+        match st_in_1:
+            case 0:
+                self.ui.state_in_1_lbl.setText("Норма")
+                self.ui.state_in_1_lbl.setStyleSheet(style_norma)
+            case 1:
+                self.ui.state_in_1_lbl.setText("КЗ")
+                self.ui.state_in_1_lbl.setStyleSheet(style_kz)
+            case 10:
+                self.ui.state_in_1_lbl.setText("Включен")
+                self.ui.state_in_1_lbl.setStyleSheet(style_on)
+            case 11:
+                self.ui.state_in_1_lbl.setText("Обрыв")
+                self.ui.state_in_1_lbl.setStyleSheet(style_breakage)
+        match st_in_2:
+            case 0:
+                self.ui.state_in_2_lbl.setText("Норма")
+                self.ui.state_in_2_lbl.setStyleSheet(style_norma)
+            case 1:
+                self.ui.state_in_2_lbl.setText("КЗ")
+                self.ui.state_in_2_lbl.setStyleSheet(style_kz)
+            case 10:
+                self.ui.state_in_2_lbl.setText("Включен")
+                self.ui.state_in_2_lbl.setStyleSheet(style_on)
+            case 11:
+                self.ui.state_in_2_lbl.setText("Обрыв")
+                self.ui.state_in_2_lbl.setStyleSheet(style_breakage)
+        match st_in_3:
+            case 0:
+                self.ui.state_in_3_lbl.setText("Норма")
+                self.ui.state_in_3_lbl.setStyleSheet(style_norma)
+            case 1:
+                self.ui.state_in_3_lbl.setText("КЗ")
+                self.ui.state_in_3_lbl.setStyleSheet(style_kz)
+            case 10:
+                self.ui.state_in_3_lbl.setText("Включен")
+                self.ui.state_in_3_lbl.setStyleSheet(style_on)
+            case 11:
+                self.ui.state_in_3_lbl.setText("Обрыв")
+                self.ui.state_in_3_lbl.setStyleSheet(style_breakage)
+        match st_in_4:
+            case 0:
+                self.ui.state_in_4_lbl.setText("Норма")
+                self.ui.state_in_4_lbl.setStyleSheet(style_norma)
+            case 1:
+                self.ui.state_in_4_lbl.setText("КЗ")
+                self.ui.state_in_4_lbl.setStyleSheet(style_kz)
+            case 10:
+                self.ui.state_in_4_lbl.setText("Включен")
+                self.ui.state_in_4_lbl.setStyleSheet(style_on)
+            case 11:
+                self.ui.state_in_4_lbl.setText("Обрыв")
+                self.ui.state_in_4_lbl.setStyleSheet(style_breakage)
 
     @Slot(bool)
-    def _counter_disconnect_ckiu(self):
+    def _sig_connect(self, item):
+        if item:
+            self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
+        else:
+            self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
+
+    @Slot(float)
+    def _update_u_acp(self, item):
+        self.ui.u_in_lcd.display(item)
+
+    @Slot(bool)
+    def _counter_disconnect_ckiu(self, item):
         self.count_err_conn += 1
         self.ui.counter_err_conn_lcd.display(self.count_err_conn)
         if self.count_err_conn > 1:
             self.ui.counter_err_conn_lcd.setStyleSheet("QLCDNumber {background-color: #8c6501;}")
-
-    @Slot(float)
-    def _update_u_in(self, item):
-        self.ui.u_in_lcd.display(item)
 
 
 def include_style(app):
