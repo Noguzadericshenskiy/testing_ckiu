@@ -1,7 +1,6 @@
 import sys
 import serial
 
-
 from PySide6 import QtGui
 from PySide6.QtCore import Slot, QFile
 from PySide6.QtWidgets import QApplication, QMainWindow
@@ -11,7 +10,7 @@ from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
 from src.ckiu_02 import Server485
-from src.skiu import Server485V2
+from src.сkiu import ServerCKIU
 
 
 class MainWindow(QMainWindow):
@@ -22,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Тестер для СКИУ")
         self.ui.connect_btn.clicked.connect(self._connect_01)
         self.ui.close_btn.clicked.connect(self._close)
-        self.ui.connect_ckiu_2_btn.clicked.connect(self._connect_02)
+        self.ui.connect_ckiu_2_btn.clicked.connect(self._start_ckiu_02)
         self.ui.close_ckiu_2_btn.clicked.connect(self._close)
         self.ui.update_btn.clicked.connect(self._update_port)
 
@@ -100,8 +99,8 @@ class MainWindow(QMainWindow):
             self.ui.counter_err_conn_lcd.display(0)
             self.count_err_conn = 0
 
-    def _connect_02(self):
-        """Запуск сканера для СКИУ-02"""
+    def _start_ckiu_02(self):
+        """Запуск СКИУ02"""
         self.count_err_conn = 0
         self.messages = []
         port_name = None
@@ -124,7 +123,7 @@ class MainWindow(QMainWindow):
 
 
             if self.server == None:
-                self.server = Server485V2(self.conn, port_name, speed, self.messages, self.params, self.sn)
+                self.server = ServerCKIU(self.conn, port_name, speed, self.messages, self.params, self.sn)
                 # self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
                 self.server.sig.connect(self._update_version)
                 self.server.sig1.connect(self._update_state)
