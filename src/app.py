@@ -1,10 +1,14 @@
 import sys
+import time
+
 import serial
 
 from PySide6 import QtGui
 from PySide6.QtCore import Slot, QFile
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtUiTools import QUiLoader
+
+from loguru import logger
 
 from src.main import Ui_MainWindow
 from src.utilites import get_com_ports
@@ -31,6 +35,7 @@ class MainWindow(QMainWindow):
         self.server = None
         self.params = ["0"]
         self.count_err_conn = 0
+        self.start_out = time.time()
 
         self._setup_param_default()
 
@@ -39,6 +44,8 @@ class MainWindow(QMainWindow):
         # self.ui.sn_lineEdit.setText("35690")
         self.ui.sn_lineEdit.setText("1234")
         # ===================================
+        self.ui.version_ckiu2_lbl.setText("0")
+        self.ui.sub_version_ckiu2_lbl.setText("0")
         self.ui.version_old_ckiu_radioButton.setChecked(True)
         self.ui.in1_t_pos_imp_lineEdit.setText("0")
         self.ui.in1_t_neg_imp_lineEdit.setText("0")
@@ -66,12 +73,18 @@ class MainWindow(QMainWindow):
         if self.server != None:
             self.server.stop_server()
             self.server = None
+
             self.ui.state_lbl.setStyleSheet(
                 "QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
             self.ui.counter_err_conn_lcd.setStyleSheet(
                 "QLCDNumber {background-color: #00557f;}")
             self.ui.counter_err_conn_lcd.display(0)
             self.count_err_conn = 0
+
+    def update_params_ckiu02(self):
+        params = self._get_params_out_ckiu02()
+        logger.info(params)
+
 
     def _get_params_out_ckiu02(self):
         params = {
@@ -88,35 +101,37 @@ class MainWindow(QMainWindow):
 
     def _start_ckiu_02(self):
         """Запуск СКИУ02"""
-        self.count_err_conn = 0
-        # self.messages = []
+        version = None
         port_name = None
+        self.count_err_conn = 0
         port_in = self.ui.port_comboBox.currentText()
         sn = int(self.ui.sn_lineEdit.text())
+
         for port in self.ports:
             if port[1] == port_in:
                 port_name = port[0]
         speed = self.ui.speed_comboBox.currentText()
+
+        if self.ui.version_old_ckiu_radioButton.isChecked():
+            version = 1
+        if self.ui.version_acp_radioButton.isChecked():
+            version = 2
+        if self.ui.version_ibp_radioButton.isChecked():
+            version = 3
+
         self.server = ServerCKIU(
             port=port_name,
             speed=speed,
             sn=sn,
-            params=self._get_params_out_ckiu02()
+            params=self._get_params_out_ckiu02(),
+            version=version
         )
-
-        if self.ui.version_old_ckiu_radioButton.isChecked():
-            ...
-        if self.ui.version_acp_radioButton.isChecked():
-            ...
-        if self.ui.version_ibp_radioButton.isChecked():
-            ...
 
         self.server.sig_conn.connect(self._sig_connect)
         self.server.sig_u_acp.connect(self._update_u_acp)
         self.server.sig_count.connect(self._counter_disconnect_ckiu)
         self.server.sig_state.connect(self._update_state_out)
         self.server.sig_version.connect(self._update_version)
-
         self.server.start()
 
         # if self.conn.is_open:
@@ -144,6 +159,7 @@ class MainWindow(QMainWindow):
 
     @Slot(tuple)
     def _update_version(self, new_item):
+        logger.info(new_item)
         self.ui.version_ckiu2_lbl.setText(new_item[0])
         self.ui.sub_version_ckiu2_lbl.setText(new_item[1])
 
@@ -153,8 +169,8 @@ class MainWindow(QMainWindow):
         style_kz = "QLabel {color: black; background-color : #f70717; border:4px solid rgb(109, 109, 109)}"
         style_on = "QLabel {color: black; background-color : #026600; border:4px solid rgb(109, 109, 109)}"
         style_breakage = "QLabel {color: black; background-color : #f77b07; border:4px solid rgb(109, 109, 109)}"
-        self.ui.u_in_lcd.display(new_item[0])
-        self.ui.u_in_lcd.setStyleSheet("QLCDNumber {background-color: #2e2e2e; color: #07f73b;}")
+        # self.ui.u_in_lcd.display(new_item[0])
+        # self.ui.u_in_lcd.setStyleSheet("QLCDNumber {background-color: #2e2e2e; color: #07f73b;}")
         st_in_1 = int(new_item[1][0])
         st_in_2 = int(new_item[1][1])
         st_in_3 = int(new_item[1][2])
@@ -222,7 +238,9 @@ class MainWindow(QMainWindow):
 
     @Slot(float)
     def _update_u_acp(self, item):
-        self.ui.u_in_lcd.display(item)
+        if time.time() - self.start_out > 0.1:
+            self.ui.u_in_lcd.display(item)
+            self.start_out = time.time()
 
     @Slot(bool)
     def _counter_disconnect_ckiu(self, item):
