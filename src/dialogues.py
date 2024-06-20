@@ -9,3 +9,13 @@ def err_connect(parent):
         buttons=QMessageBox.Discard,
         defaultButton=QMessageBox.Discard,
     )
+
+def err_port_close(parent):
+    QMessageBox.critical(
+        parent,
+        "Error COM port",
+        "Закрывать нечего\n"
+        "Порт отключен.",
+        buttons=QMessageBox.Discard,
+        defaultButton=QMessageBox.Discard,
+    )

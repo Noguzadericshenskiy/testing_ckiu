@@ -7,11 +7,12 @@ from PySide6.QtCore import Signal, QThread
 from src.crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
 from serial.serialutil import PortNotOpenError
 
+
 class ServerCKIU(QThread):
     sig_conn = Signal(bool)
     sig_count = Signal(bool)
     sig_u_acp = Signal(float)
-    sig_state =Signal(tuple)
+    sig_state = Signal(tuple)
     sig_version = Signal(tuple)
 
     def __init__(self, port, speed, sn, params, version):
@@ -22,34 +23,39 @@ class ServerCKIU(QThread):
         self.sn = sn
         self.params = params
         self.version = version
+        self.conn = None
 
     def run(self) -> None:
-        self.conn = Serial(
-            port=self.port,
-            baudrate=self.speed,
-            timeout=0.3,
-        )
+        try:
+            self.conn = Serial(
+                port=self.port,
+                baudrate=self.speed,
+                timeout=0.3,
+            )
 
-        if self.conn.is_open:
-            self.sig_conn.emit(True)
-        else:
-            self.sig_conn.emit(True)
+            if self.conn.is_open:
+                self.sig_conn.emit(True)
+            else:
+                self.sig_conn.emit(False)
 
-        # self._delete_config(self.sn)
-        self._awaken()
-        self._request_version_ckiu_02()
-
-        while True:
-            self._request_scan_ckiu_02()
             if self.version == 1:
-                ...
+                self._awaken()
+                while True:
+                    self._get_u_acp_old()
+                    self._request_scan_ckiu_02()
             if self.version == 2:
                 ...
             if self.version == 3:
-                self._get_u_acp()
+                self._delete_config(self.sn)
+                self._awaken()
+                self._request_version_ckiu_02()
+                while True:
+                    self._request_scan_ckiu_02()
+                    self._get_u_acp()
+        except:
+            ...
 
     def stop_server(self):
-        self.f_start = False
         self.conn.close()
 
     def _awaken(self):
@@ -94,6 +100,38 @@ class ServerCKIU(QThread):
                 else:
                     self.sig_count.emit(True)
 
+    def _get_u_acp_old(self):
+# Запрос 0xB6, 0x49, 0x1B, <адрес lo>, <адрес hi>, 0x01, 0x82, <CRC16 lo>, <CRC16 h>
+# Ответ: 0xB9, 0x46, 0x1B, <адрес lo>, <адрес hi>, 0x06, 0x02, < 0x00 >, < АЦПuвх1 >, < 0x00 >, < 0x00 >, < 0x00 >, <CRC16 lo>, <CRC16 h>
+
+        f_start = True
+        msg = bytearray(b"\xB6\x49\x1B")
+        msg.extend(self.sn.to_bytes((self.sn.bit_length() + 7) // 8, byteorder='little'))
+        msg.extend(bytearray(b"\x01\x82"))
+        msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))
+        msg = _indicate_send_b6_b9(msg)
+        self.conn.reset_input_buffer()
+        self.conn.reset_output_buffer()
+        self.conn.write(msg)
+        self.conn.flush()
+        while f_start and self.conn.is_open:
+            if self.conn.read() == b"\xB9" and self.conn.read() == b"\x46":
+                f_start = False
+                ans = bytearray(b"\xB9\x46")
+                for _ in range(8):
+                    b = self.conn.read()
+                    if b == b"\xB9" or b == b"\xB6":
+                        self.conn.read()
+                    ans.extend(b)
+                self.conn.reset_output_buffer()
+                if crc_ccitt_16_kermit_b(ans) == 0:
+                    # logger.info(f'ok {(int.from_bytes(ans[6:7], "little") * 132) / 1024}')
+                    self.sig_u_acp.emit((int.from_bytes(ans[6:7], "little") * 132) / 1024)
+                else:
+                    self.sig_count.emit(True)
+                    # logger.info("bad")
+
+
     def _delete_config(self, sn):
         f_s = True
         while f_s:
@@ -113,7 +151,6 @@ class ServerCKIU(QThread):
                 start = time.time()
                 while time.time() - start < 5:
                     ...
-
 
     def _request_version_ckiu_02(self):
         f_start = True
@@ -146,7 +183,6 @@ class ServerCKIU(QThread):
     def _request_scan_ckiu_02(self):
         f_start = True
         msg = bytearray(b"\xb6\x49\x1b")
-        # self.sn = int(self.ui.sn_lineEdit.text())
         msg.extend(self.sn.to_bytes((self.sn.bit_length() + 7) // 8, byteorder='little'))
         msg.extend(bytearray(b"\x09\x81"))
         msg.append(self.params["in1_pos"])
@@ -174,12 +210,10 @@ class ServerCKIU(QThread):
                     ans.extend(b)
                 self.conn.reset_output_buffer()
                 if crc_ccitt_16_kermit_b(ans) == 0:
-                    # logger.info(ans.hex())
                     statuse_in = _update_status_in(ans[9:10])
                     self.sig_state.emit(((int.from_bytes(ans[8:9], "little") * 132) / 1024, statuse_in))
                 else:
                     self.sig_version.emit(True)
-                    # logger.info(f"{ans.hex()}  {crc_ccitt_16_kermit_b(ans[:10])}  {ans[8:9].hex()} {ans[9:10].hex()}")
 
 
 def _update_status_in(statuses):
