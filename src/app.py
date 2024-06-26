@@ -15,6 +15,7 @@ from src.utilites import get_com_ports
 from crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
 from src.ckiu_02_old import Server485
 from src.сkiu import ServerCKIU
+from src.dialogues import err_port_close
 
 
 style_norma = "QLabel {color: black; background-color : #07f73b; border:4px solid rgb(109, 109, 109)}"
@@ -77,8 +78,10 @@ class MainWindow(QMainWindow):
         self.ui.speed_comboBox.addItem("9600")
 
     def _close(self):
-        if self.server != None:
-
+        style_breakage = "QLabel {color: black; background-color : #f77b07; border:4px solid rgb(109, 109, 109)}"
+        if self.server is not None:
+            self.server.stop_server()
+            self.server = None
             self.ui.state_lbl.setStyleSheet(
                 "QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
             self.ui.counter_err_conn_lcd.setStyleSheet(
@@ -101,10 +104,8 @@ class MainWindow(QMainWindow):
 
 
 
-    def update_params_ckiu02(self):
-        params = self._get_params_out_ckiu02()
-        logger.info(params)
-
+        else:
+            err_port_close(self)
 
     def _get_params_out_ckiu02(self):
         params = {
@@ -121,39 +122,39 @@ class MainWindow(QMainWindow):
 
     def _start_ckiu_02(self):
         """Запуск СКИУ02"""
-        version = None
-        port_name = None
-        self.count_err_conn = 0
-        port_in = self.ui.port_comboBox.currentText()
-        sn = int(self.ui.sn_lineEdit.text())
+        if self.server is None:
+            version = None
+            port_name = None
+            self.count_err_conn = 0
+            port_in = self.ui.port_comboBox.currentText()
+            sn = int(self.ui.sn_lineEdit.text())
 
-        for port in self.ports:
-            if port[1] == port_in:
-                port_name = port[0]
-        speed = self.ui.speed_comboBox.currentText()
+            for port in self.ports:
+                if port[1] == port_in:
+                    port_name = port[0]
+            speed = self.ui.speed_comboBox.currentText()
 
-        if self.ui.version_old_ckiu_radioButton.isChecked():
-            version = 1
-        if self.ui.version_acp_radioButton.isChecked():
-            version = 2
-        if self.ui.version_ibp_radioButton.isChecked():
-            version = 3
+            if self.ui.version_old_ckiu_radioButton.isChecked():
+                version = 1
+            if self.ui.version_acp_radioButton.isChecked():
+                version = 2
+            if self.ui.version_ibp_radioButton.isChecked():
+                version = 3
 
-        self.server = ServerCKIU(
-            port=port_name,
-            speed=speed,
-            sn=sn,
-            params=self._get_params_out_ckiu02(),
-            version=version
-        )
+            self.server = ServerCKIU(
+                port=port_name,
+                speed=speed,
+                sn=sn,
+                params=self._get_params_out_ckiu02(),
+                version=version
+            )
 
-        self.server.sig_conn.connect(self._sig_connect)
-        self.server.sig_u_acp.connect(self._update_u_acp)
-        self.server.sig_count.connect(self._counter_disconnect_ckiu)
-        self.server.sig_state.connect(self._update_state_out)
-        self.server.sig_version.connect(self._update_version)
-        self.server.start()
-
+            self.server.sig_conn.connect(self._sig_connect)
+            self.server.sig_u_acp.connect(self._update_u_acp)
+            self.server.sig_count.connect(self._counter_disconnect_ckiu)
+            self.server.sig_state.connect(self._update_state_out)
+            self.server.sig_version.connect(self._update_version)
+            self.server.start()
 
     @Slot(tuple)
     def _update_version(self, new_item):
