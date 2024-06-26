@@ -17,6 +17,13 @@ from src.ckiu_02_old import Server485
 from src.сkiu import ServerCKIU
 
 
+style_norma = "QLabel {color: black; background-color : #07f73b; border:4px solid rgb(109, 109, 109)}"
+style_kz = "QLabel {color: black; background-color : #f70717; border:4px solid rgb(109, 109, 109)}"
+style_on = "QLabel {color: black; background-color : #026600; border:4px solid rgb(109, 109, 109)}"
+style_breakage = "QLabel {color: black; background-color : #f77b07; border:4px solid rgb(109, 109, 109)}"
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -71,15 +78,28 @@ class MainWindow(QMainWindow):
 
     def _close(self):
         if self.server != None:
-            self.server.stop_server()
-            self.server = None
 
             self.ui.state_lbl.setStyleSheet(
                 "QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
             self.ui.counter_err_conn_lcd.setStyleSheet(
                 "QLCDNumber {background-color: #00557f;}")
             self.ui.counter_err_conn_lcd.display(0)
+            self.ui.state_in_1_lbl.setText("")
+            self.ui.state_in_1_lbl.setStyleSheet(style_breakage)
+            self.ui.state_in_2_lbl.setText("")
+            self.ui.state_in_2_lbl.setStyleSheet(style_breakage)
+            self.ui.state_in_3_lbl.setText("")
+            self.ui.state_in_3_lbl.setStyleSheet(style_breakage)
+            self.ui.state_in_4_lbl.setText("")
+            self.ui.state_in_4_lbl.setStyleSheet(style_breakage)
             self.count_err_conn = 0
+            self.ui.version_ckiu2_lbl.setText("")
+            self.ui.sub_version_ckiu2_lbl.setText("")
+            self.ui.u_in_lcd.display(0)
+            self.server.stop_server()
+            self.server = None
+
+
 
     def update_params_ckiu02(self):
         params = self._get_params_out_ckiu02()
@@ -134,28 +154,6 @@ class MainWindow(QMainWindow):
         self.server.sig_version.connect(self._update_version)
         self.server.start()
 
-        # if self.conn.is_open:
-        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color: #36f207; border:4px solid rgb(109, 109, 109)}")
-        #     self._request_version_ckiu_02()
-        #     self._request_scan_ckiu_02()
-
-        #     if self.ui.version_acp_radioButton.isChecked():
-        #         self._request_acp_ckiu_02_old()
-        #     if self.ui.version_ibp_radioButton.isChecked():
-        #         self._request_acp_ckiu_02_ibp()
-        #
-        #
-        #     if self.server == None:
-        #         self.server = ServerCKIU(self.conn, port_name, speed, self.messages, self.params, self.sn)
-        #         # self.server = Server485(self. conn, port_name, speed, self.messages, self.params)
-        #         self.server.sig.connect(self._update_version)
-        #         self.server.sig1.connect(self._update_state)
-        #         self.server.sig_disconnect.connect(self._counter_disconnect_ckiu)
-        #         self.server.sig_u_acp.connect(self._update_u_in)
-        #         self.server.start()
-        #
-        # else:
-        #     self.ui.state_lbl.setStyleSheet("QLabel {background-color : #f01; border:4px solid rgb(109, 109, 109)}")
 
     @Slot(tuple)
     def _update_version(self, new_item):
@@ -175,6 +173,7 @@ class MainWindow(QMainWindow):
         st_in_2 = int(new_item[1][1])
         st_in_3 = int(new_item[1][2])
         st_in_4 = int(new_item[1][3])
+        logger.info(f"st_in_1- {st_in_1} st_in_2- {st_in_2} st_in_3- {st_in_3} st_in_4- {st_in_4}")
 
         match st_in_1:
             case 0:

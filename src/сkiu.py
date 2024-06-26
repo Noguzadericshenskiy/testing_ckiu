@@ -24,29 +24,32 @@ class ServerCKIU(QThread):
         self.version = version
 
     def run(self) -> None:
-        self.conn = Serial(
-            port=self.port,
-            baudrate=self.speed,
-            timeout=0.3,
-        )
+        try:
+            self.conn = Serial(
+                port=self.port,
+                baudrate=self.speed,
+                timeout=0.3,
+            )
 
-        if self.conn.is_open:
-            self.sig_conn.emit(True)
-        else:
-            self.sig_conn.emit(True)
+            if self.conn.is_open:
+                self.sig_conn.emit(True)
+            else:
+                self.sig_conn.emit(True)
 
-        # self._delete_config(self.sn)
-        self._awaken()
-        self._request_version_ckiu_02()
+            # self._delete_config(self.sn)
+            self._awaken()
+            self._request_version_ckiu_02()
 
-        while True:
-            self._request_scan_ckiu_02()
-            if self.version == 1:
-                ...
-            if self.version == 2:
-                ...
-            if self.version == 3:
-                self._get_u_acp()
+            while True:
+                self._request_scan_ckiu_02()
+                if self.version == 1:
+                    ...
+                if self.version == 2:
+                    ...
+                if self.version == 3:
+                    self._get_u_acp()
+        except Exception as err:
+            logger.info(err)
 
     def stop_server(self):
         self.f_start = False
@@ -93,6 +96,7 @@ class ServerCKIU(QThread):
                     self.sig_u_acp.emit(int.from_bytes(ans[9:11], "little") / 100)
                 else:
                     self.sig_count.emit(True)
+                logger.info(f'{ans.hex("/")}     {ans[9:11]}')
 
     def _delete_config(self, sn):
         f_s = True
@@ -174,12 +178,12 @@ class ServerCKIU(QThread):
                     ans.extend(b)
                 self.conn.reset_output_buffer()
                 if crc_ccitt_16_kermit_b(ans) == 0:
-                    # logger.info(ans.hex())
+                    logger.info(ans.hex())
                     statuse_in = _update_status_in(ans[9:10])
                     self.sig_state.emit(((int.from_bytes(ans[8:9], "little") * 132) / 1024, statuse_in))
                 else:
                     self.sig_version.emit(True)
-                    # logger.info(f"{ans.hex()}  {crc_ccitt_16_kermit_b(ans[:10])}  {ans[8:9].hex()} {ans[9:10].hex()}")
+                    logger.info(f"{ans.hex()}  {crc_ccitt_16_kermit_b(ans[:10])}  {ans[8:9].hex()} {ans[9:10].hex()}")
 
 
 def _update_status_in(statuses):
