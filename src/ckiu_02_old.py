@@ -2,7 +2,7 @@
 from loguru import logger
 from PySide6.QtCore import Signal, QThread
 
-from src.crc_16_ccitt import crc_ccitt_16_kermit_b
+from src.service.crc_16_ccitt import crc_ccitt_16_kermit_b
 from serial.serialutil import PortNotOpenError
 
 

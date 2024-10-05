@@ -1,7 +1,3 @@
-from crc_16_ccitt import revers_bytes
-from serial.tools import list_ports_windows
-
-
 from serial.tools import list_ports_windows
 
 

@@ -4,8 +4,7 @@ from serial import Serial
 from loguru import logger
 from PySide6.QtCore import Signal, QThread
 
-from src.crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc
-from serial.serialutil import PortNotOpenError
+from src.service.crc_16_ccitt import crc_ccitt_16_kermit_b, add_crc, indicate_send_b6
 
 
 class ServerCKIU(QThread):
@@ -43,9 +42,9 @@ class ServerCKIU(QThread):
                 while True:
                     self._get_u_acp_old()
                     self._request_scan_ckiu_02()
-            if self.version == 2:
+            elif self.version == 2:
                 ...
-            if self.version == 3:
+            elif self.version == 3:
                 self._delete_config(self.sn)
                 self._awaken()
                 self._request_version_ckiu_02()
@@ -65,7 +64,7 @@ class ServerCKIU(QThread):
             msg.extend(self.sn.to_bytes((self.sn.bit_length() + 7) // 8, byteorder='little'))
             msg.extend(bytearray(b"\x01\x83"))
             msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))
-            msg = _indicate_send_b6_b9(msg)
+            msg = indicate_send_b6(msg)
             self.conn.reset_input_buffer()
             self.conn.reset_output_buffer()
             self.conn.write(msg)
@@ -80,7 +79,7 @@ class ServerCKIU(QThread):
         msg.extend(self.sn.to_bytes((self.sn.bit_length() + 7) // 8, byteorder='little'))
         msg.extend(bytearray(b"\x01\x83"))
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))
-        msg = _indicate_send_b6_b9(msg)
+        msg = indicate_send_b6(msg)
         self.conn.reset_input_buffer()
         self.conn.reset_output_buffer()
         self.conn.write(msg)
@@ -110,7 +109,7 @@ class ServerCKIU(QThread):
         msg.extend(self.sn.to_bytes((self.sn.bit_length() + 7) // 8, byteorder='little'))
         msg.extend(bytearray(b"\x01\x82"))
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))
-        msg = _indicate_send_b6_b9(msg)
+        msg = indicate_send_b6(msg)
         self.conn.reset_input_buffer()
         self.conn.reset_output_buffer()
         self.conn.write(msg)
@@ -140,7 +139,7 @@ class ServerCKIU(QThread):
             msg.extend(sn.to_bytes((sn.bit_length() + 7) // 8, byteorder='little')) #add sn
             msg.extend(b"\x01\xD1")
             msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))
-            msg = _indicate_send_b6_b9(msg)
+            msg = indicate_send_b6(msg)
             self.conn.reset_input_buffer()
             self.conn.write(msg)
             self.conn.write(msg)
@@ -160,7 +159,7 @@ class ServerCKIU(QThread):
         msg.append(1)  # 01
         msg.append(128)  # 80
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        msg = _indicate_send_b6_b9(msg)
+        msg = indicate_send_b6(msg)
         self.conn.reset_output_buffer()
         self.conn.write(msg)
         self.conn.flush()
@@ -195,7 +194,7 @@ class ServerCKIU(QThread):
         msg.append(self.params["in4_pos"])
         msg.append(self.params["in4_neg"])
         msg = add_crc(msg, crc_ccitt_16_kermit_b(msg))  # +crc
-        msg = _indicate_send_b6_b9(msg)
+        msg = indicate_send_b6(msg)
         self.conn.reset_input_buffer()
         self.conn.reset_output_buffer()
         self.conn.write(msg)
@@ -221,14 +220,3 @@ class ServerCKIU(QThread):
 def _update_status_in(statuses):
     status_b = bin(int.from_bytes(statuses, byteorder='big'))[2:].zfill(8)
     return (status_b[6:], status_b[4:6], status_b[2:4], status_b[:2])
-
-
-def _indicate_send_b6_b9(array_bytes: bytearray):
-    new_msg = bytearray(b"\xB6\x49")
-    for i_byte in array_bytes[2:]:
-        if i_byte == 182 or i_byte == 185:
-            new_msg.append(i_byte)
-            new_msg.append(0)
-        else:
-            new_msg.append(i_byte)
-    return new_msg
